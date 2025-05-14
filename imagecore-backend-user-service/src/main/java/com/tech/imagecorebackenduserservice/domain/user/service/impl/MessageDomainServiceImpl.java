@@ -85,20 +85,28 @@ public class MessageDomainServiceImpl extends ServiceImpl<MessageMapper, Message
         if(MessageType.THUMB.getValue().equals(messageType)){
             messageVoList.forEach((messageVo) -> {
                 Thumb thumb = pictureFeignClient.getThumbById(messageVo.getCommentId());
-                User user = userDomainService.getById(thumb.getUserId());
-                PictureCommentVo pictureCommentVo = new PictureCommentVo();
-                UserVO userVO = userDomainService.getUserVO(user);
-                pictureCommentVo.setUser(userVO);
-                messageVo.setPictureCommentVo(pictureCommentVo);
+                if(thumb != null){
+                    User user = userDomainService.getById(thumb.getUserId());
+                    PictureCommentVo pictureCommentVo = new PictureCommentVo();
+                    UserVO userVO = userDomainService.getUserVO(user);
+                    pictureCommentVo.setUser(userVO);
+                    messageVo.setPictureCommentVo(pictureCommentVo);
+                }else{
+                    messageVo.setContent(MessageConstant.DELETED_MESSAGE);
+                }
             });
         } else if (MessageType.COMMENT.getValue().equals(messageType)) {
             messageVoList.forEach((messageVo) -> {
                 PictureComment pictureComment = pictureFeignClient.getPictureCommentById(messageVo.getCommentId());
-                PictureCommentVo pictureCommentVo = PictureCommentVo.objToVo(pictureComment);
-                User user = userDomainService.getById(pictureCommentVo.getUserId());
-                UserVO userVO = userDomainService.getUserVO(user);
-                pictureCommentVo.setUser(userVO);
-                messageVo.setPictureCommentVo(pictureCommentVo);
+                if(pictureComment != null){
+                    PictureCommentVo pictureCommentVo = PictureCommentVo.objToVo(pictureComment);
+                    User user = userDomainService.getById(pictureCommentVo.getUserId());
+                    UserVO userVO = userDomainService.getUserVO(user);
+                    pictureCommentVo.setUser(userVO);
+                    messageVo.setPictureCommentVo(pictureCommentVo);
+                }else{
+                    messageVo.setContent(MessageConstant.DELETED_MESSAGE);
+                }
             });
         }
         messageVoPage.setRecords(messageVoList);

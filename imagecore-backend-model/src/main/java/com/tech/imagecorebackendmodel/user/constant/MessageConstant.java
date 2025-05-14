@@ -11,4 +11,6 @@ public interface MessageConstant {
     String NEW_THUMB = "您有新的点赞";
 
     String USER_VIP_MONTH_MESSAGE = "您已成功开通会员一个月，截止日期为：";
+
+    String DELETED_MESSAGE = "原始引用已被删除";
 }

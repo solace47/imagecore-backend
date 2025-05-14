@@ -76,15 +76,16 @@ public class PictureController {
             PictureUploadRequest pictureUploadRequest,
             HttpServletRequest request) {
         User loginUser = userFeignClient.getLoginUser(request);
-        Space space = spaceFeignClient.getById(pictureUploadRequest.getSpaceId());
+        if(pictureUploadRequest.getSpaceId() != null) {
+            Space space = spaceFeignClient.getById(pictureUploadRequest.getSpaceId());
+            SpaceUserAuthRequest spaceUserAuthRequest = new SpaceUserAuthRequest();
+            spaceUserAuthRequest.setLoginUser(loginUser);
+            spaceUserAuthRequest.setSpace(space);
+            spaceUserAuthRequest.setNeedPermission(SpaceUserPermissionConstant.PICTURE_UPLOAD);
 
-        SpaceUserAuthRequest spaceUserAuthRequest = new SpaceUserAuthRequest();
-        spaceUserAuthRequest.setLoginUser(loginUser);
-        spaceUserAuthRequest.setSpace(space);
-        spaceUserAuthRequest.setNeedPermission(SpaceUserPermissionConstant.PICTURE_UPLOAD);
-
-        ThrowUtils.throwIf(!spaceFeignClient.hasPermission(spaceUserAuthRequest),
-                ErrorCode.OPERATION_ERROR, "无上传权限");
+            ThrowUtils.throwIf(!spaceFeignClient.hasPermission(spaceUserAuthRequest),
+                    ErrorCode.OPERATION_ERROR, "无上传权限");
+        }
         PictureVO pictureVO = pictureApplicationService.uploadPicture(multipartFile, pictureUploadRequest, loginUser);
         return ResultUtils.success(pictureVO);
     }
@@ -256,13 +257,15 @@ public class PictureController {
         }
         User loginUser = userFeignClient.getLoginUser(request);
         Picture picture = pictureApplicationService.getById(pictureEditRequest.getId());
-        Space space = spaceFeignClient.getById(picture.getSpaceId());
-        SpaceUserAuthRequest spaceUserAuthRequest = new SpaceUserAuthRequest();
-        spaceUserAuthRequest.setLoginUser(loginUser);
-        spaceUserAuthRequest.setSpace(space);
-        spaceUserAuthRequest.setNeedPermission(SpaceUserPermissionConstant.PICTURE_EDIT);
-        ThrowUtils.throwIf(!spaceFeignClient.hasPermission(spaceUserAuthRequest),
-                ErrorCode.OPERATION_ERROR, "无编辑权限");
+        if(picture.getSpaceId() != null) {
+            Space space = spaceFeignClient.getById(picture.getSpaceId());
+            SpaceUserAuthRequest spaceUserAuthRequest = new SpaceUserAuthRequest();
+            spaceUserAuthRequest.setLoginUser(loginUser);
+            spaceUserAuthRequest.setSpace(space);
+            spaceUserAuthRequest.setNeedPermission(SpaceUserPermissionConstant.PICTURE_EDIT);
+            ThrowUtils.throwIf(!spaceFeignClient.hasPermission(spaceUserAuthRequest),
+                    ErrorCode.OPERATION_ERROR, "无编辑权限");
+        }
         // 在此处将实体类和 DTO 进行转换
         Picture pictureEntity = PictureAssembler.toPictureEntity(pictureEditRequest);
         pictureApplicationService.editPicture(pictureEntity, loginUser);
