@@ -297,7 +297,8 @@ public class CacheManager {
         }
 
         // 满足下列条件，直接返回一个空
-        if(idSet == null || idSet.isEmpty() || !ZERO.equals(total - (page - 1) * size - idSet.size())){
+        if (idSet == null || idSet.isEmpty() ||
+                (idSet.size() != size && !ZERO.equals(total - (page - 1) * size - idSet.size()))) {
             return null;
         }
 
