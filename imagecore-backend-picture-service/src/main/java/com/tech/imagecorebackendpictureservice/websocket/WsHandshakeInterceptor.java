@@ -47,6 +47,9 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
     @Resource
     private SpaceFeignClient spaceFeignClient;
 
+    @Resource
+    private UserFeignClient userFeignClient;
+
     /**
      * 建立连接前要先校验
      *
@@ -59,7 +62,7 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
      */
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
-        User loginUser = new User();
+        User loginUser = null;
         if (request instanceof ServletServerHttpRequest) {
             HttpServletRequest httpServletRequest = ((ServletServerHttpRequest) request).getServletRequest();
 
@@ -77,12 +80,8 @@ public class WsHandshakeInterceptor implements HandshakeInterceptor {
                             // 将用户信息存入属性
                             // 从token中获取用户信息
                             Long userId = JwtUtils.getUserIdFromToken(token, secretKey);
-                            String userAccount = JwtUtils.getUserAccountFromToken(token, secretKey);
-                            String userRole = JwtUtils.getUserRoleFromToken(token, secretKey);
+                            loginUser = userFeignClient.getUserById(userId);
                             // 构建用户对象并存入请求属性中，供后续使用
-                            loginUser.setId(userId);
-                            loginUser.setUserAccount(userAccount);
-                            loginUser.setUserRole(userRole);
                             response.getHeaders().set("Sec-WebSocket-Protocol", protocol);
                             break;
                         }else {

@@ -39,6 +39,13 @@ spring:
             - Path=/api/thumb/**
           filters:
             - RewritePath=/api/thumb/(?<segment>.*), /api/picture/thumb/$\{segment}
+        # WebSocket
+        - id: imagecore-backend-picture-service-websocket
+          uri: lb:ws://imagecore-backend-picture-service
+          predicates:
+            - Path=/api/ws/**
+          filters:
+            - RewritePath=/api/ws/(?<segment>.*), /api/picture/ws/$\{segment}
         # 空间服务
         - id: imagecore-backend-space-service
           uri: lb://imagecore-backend-space-service

@@ -113,6 +113,12 @@ public class GlobalAuthFilter implements GlobalFilter, Ordered {
         if (HttpMethod.OPTIONS.matches(Objects.requireNonNull(serverHttpRequest.getMethod()).name())) {
             return chain.filter(exchange);
         }
+
+        // 如果是 WebSocket 连接 跳过
+        if (path.startsWith("/api/ws/")) {
+            return chain.filter(exchange);
+        }
+
         // 统一权限校验，通过 JWT 获取登录用户信息
         String token = serverHttpRequest.getHeaders().getFirst(JwtUtils.JWT_HEADER);
 
